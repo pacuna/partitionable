@@ -48,6 +48,10 @@ And then execute:
 $ bundle
 ```
 
+## TODO
+
+- Custom logdate attribute passed in the options hash
+
 ## Contributing
 Contribution directions go here.
 
