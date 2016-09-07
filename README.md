@@ -22,17 +22,18 @@ class ApplicationRecord < ActiveRecord::Base
 end
 ```
 
-And the add the `acts_as_partitionable` method to the model:
+And the add the `acts_as_partitionable` method to the model. The index fields is a mandatory
+options. It'll add an index for those attributes when creating the partitions:
 
 ```ruby
 class ArticleStat < ApplicationRecord
-  acts_as_partitionable
+  acts_as_partitionable, index_fields: ['id', 'site']
 end
 ```
 
 And that's it. Now you'll have the following class methods available for your model:
 
-#### partition_table_name(month, year)
+#### partition_name(month, year)
 
 It generates a new partition for that month and year. By default
 it uses the model's table name along with the month and the year. Example: `article_stats_y2015m01`
