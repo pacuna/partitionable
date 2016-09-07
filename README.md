@@ -1,11 +1,11 @@
 # Partitionable
-Short description and motivation.
 
-## Usage
 This gem adds support for using the PostgreSQL partitioning mechanism
 describe [here](https://www.postgresql.org/docs/9.1/static/ddl-partitioning.html).
 
-It assumes the model you want to partition has `logdate` attribute which will be
+## Usage
+
+Partitionable assumes the model you want to partition has `logdate` attribute which will be
 used for checking the partitions constraints and triggers.
 
 ### Example
