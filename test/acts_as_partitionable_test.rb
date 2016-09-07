@@ -60,4 +60,9 @@ class ActsAsPartitionableTest < ActiveSupport::TestCase
 
     assert_equal statement, ArticleStat.get_trigger_body(months_and_years)
   end
+
+  def test_article_stats_partition_table_exists?
+    ArticleStat.create_table_for(1,2011)
+    assert_equal true, ArticleStat.partition_table_exists?(1,2011)
+  end
 end
