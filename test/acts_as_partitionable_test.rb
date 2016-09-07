@@ -71,4 +71,14 @@ class ActsAsPartitionableTest < ActiveSupport::TestCase
     ArticleStat.drop_partition(2, 2014)
     assert_equal false, ActiveRecord::Base.connection.data_source_exists?("article_stats_y2014m02")
   end
+
+  def test_article_stats_create_table_statement
+    statement = <<-SQL
+          CREATE TABLE article_stats_y2014m02 (
+              CHECK ( logdate >= DATE '2014-02-01' AND logdate < DATE '2014-03-01' )
+          ) INHERITS (article_stats);
+          CREATE INDEX article_stats_y2014m02_site_token ON article_stats_y2014m02 (site,token);
+            SQL
+    assert_equal statement, ArticleStat.create_table_statement(2,2014)
+  end
 end

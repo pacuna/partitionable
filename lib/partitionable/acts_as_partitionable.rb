@@ -16,19 +16,20 @@ module Partitionable
         end
 
         def create_partition(month, year)
+          ActiveRecord::Base.connection.execute create_table_statement(month, year)
+        end
+
+        def create_table_statement(month, year)
           table = partition_name(month, year)
           index_name = "#{table}_#{index_fields.join('_')}"
           first_day_of_month = Date.civil(year, month, 1)
           first_day_next_month = (first_day_of_month + 1.month)
-
-          ActiveRecord::Base.connection.execute(
             <<-SQL
           CREATE TABLE #{table} (
               CHECK ( logdate >= DATE '#{first_day_of_month.to_s}' AND logdate < DATE '#{first_day_next_month.to_s}' )
           ) INHERITS (#{self.table_name});
           CREATE INDEX #{index_name} ON #{table} (#{index_fields.join(',')});
             SQL
-          )
         end
 
         def drop_partition(month, year)
