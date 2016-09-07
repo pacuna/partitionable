@@ -6,16 +6,18 @@ module Partitionable
     end
 
     module ClassMethods
-      def acts_as_partitionable
+      def acts_as_partitionable(options = {})
+        cattr_accessor :index_fields
+        self.index_fields = options[:index_fields]
 
-        def partition_table_name(month, year)
+        def partition_name(month, year)
           formatted_month = sprintf('%02d', month)
           "#{self.table_name}_y#{year}m#{formatted_month}"
         end
 
         def create_partition(month, year)
-          table = partition_table_name(month, year)
-          index_name = "#{table}_logdate_site"
+          table = partition_name(month, year)
+          index_name = "#{table}_#{index_fields.join('_')}"
           first_day_of_month = Date.civil(year, month, 1)
           first_day_next_month = (first_day_of_month + 1.month)
 
@@ -24,14 +26,14 @@ module Partitionable
           CREATE TABLE #{table} (
               CHECK ( logdate >= DATE '#{first_day_of_month.to_s}' AND logdate < DATE '#{first_day_next_month.to_s}' )
           ) INHERITS (#{self.table_name});
-          CREATE INDEX #{index_name} ON #{table} (site, token);
+          CREATE INDEX #{index_name} ON #{table} (#{index_fields.join(',')});
             SQL
           )
         end
 
         def drop_partition(month, year)
-          name = partition_table_name(month, year)
-          index_name = "#{name}_logdate_site"
+          name = partition_name(month, year)
+          index_name = "#{name}_#{index_fields.join('_')}"
           function_name = "#{name}_insert_trigger_function()"
           trigger_name = "#{name}_trigger"
           ActiveRecord::Base.connection.execute(
@@ -80,13 +82,13 @@ module Partitionable
               statement += <<-eos
               IF ( NEW.logdate >= DATE '#{first_day_of_month}' AND
                    NEW.logdate < DATE '#{first_day_next_month}' ) THEN
-                  INSERT INTO #{partition_table_name(data[0], data[1])} VALUES (NEW.*);
+                  INSERT INTO #{partition_name(data[0], data[1])} VALUES (NEW.*);
               eos
             else
               statement += <<-eos
               ELSIF ( NEW.logdate >= DATE '#{first_day_of_month}' AND
                    NEW.logdate < DATE '#{first_day_next_month}' ) THEN
-                  INSERT INTO #{partition_table_name(data[0], data[1])} VALUES (NEW.*);
+                  INSERT INTO #{partition_name(data[0], data[1])} VALUES (NEW.*);
               eos
             end
           end
@@ -98,7 +100,7 @@ module Partitionable
         end
 
         def partition_exists?(month, year)
-          ActiveRecord::Base.connection.data_source_exists? partition_table_name(month, year)
+          ActiveRecord::Base.connection.data_source_exists? partition_name(month, year)
         end
       end
     end
