@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/pacuna/partitionable.svg?branch=master)](https://travis-ci.org/pacuna/partitionable)
 # Partitionable
 
 This gem adds support for using the PostgreSQL partitioning mechanism
