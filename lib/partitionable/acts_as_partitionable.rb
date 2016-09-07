@@ -13,7 +13,7 @@ module Partitionable
           "#{self.table_name}_y#{year}m#{formatted_month}"
         end
 
-        def create_table_for(month, year)
+        def create_partition(month, year)
           table = partition_table_name(month, year)
           index_name = "#{table}_logdate_site"
           first_day_of_month = Date.civil(year, month, 1)
@@ -25,6 +25,21 @@ module Partitionable
               CHECK ( logdate >= DATE '#{first_day_of_month.to_s}' AND logdate < DATE '#{first_day_next_month.to_s}' )
           ) INHERITS (#{self.table_name});
           CREATE INDEX #{index_name} ON #{table} (site, token);
+            SQL
+          )
+        end
+
+        def drop_partition(month, year)
+          name = partition_table_name(month, year)
+          index_name = "#{name}_logdate_site"
+          function_name = "#{name}_insert_trigger_function()"
+          trigger_name = "#{name}_trigger"
+          ActiveRecord::Base.connection.execute(
+            <<-SQL
+          DROP TABLE IF EXISTS #{name};
+          DROP INDEX IF EXISTS #{index_name};
+          DROP FUNCTION IF EXISTS #{function_name} CASCADE;
+          DROP TRIGGER IF EXISTS #{trigger_name} ON #{self.table_name} CASCADE;
             SQL
           )
         end

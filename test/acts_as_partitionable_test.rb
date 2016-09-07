@@ -5,8 +5,8 @@ class ActsAsPartitionableTest < ActiveSupport::TestCase
     assert_equal "article_stats_y2015m01", ArticleStat.partition_table_name(1,2015)
   end
 
-  def test_article_stats_create_table_for
-    ArticleStat.create_table_for(1,2015)
+  def test_article_stats_create_partition
+    ArticleStat.create_partition(1,2015)
     assert_equal true, ActiveRecord::Base.connection.data_source_exists?("article_stats_y2015m01")
   end
 
@@ -62,7 +62,13 @@ class ActsAsPartitionableTest < ActiveSupport::TestCase
   end
 
   def test_article_stats_partition_table_exists?
-    ArticleStat.create_table_for(1,2011)
+    ArticleStat.create_partition(1,2011)
     assert_equal true, ArticleStat.partition_table_exists?(1,2011)
+  end
+
+  def test_article_stats_drop_partition_table
+    ArticleStat.create_partition(2,2014)
+    ArticleStat.drop_partition(2, 2014)
+    assert_equal false, ActiveRecord::Base.connection.data_source_exists?("article_stats_y2014m02")
   end
 end
