@@ -3,4 +3,4 @@ rvm:
   - 2.2.2
 
 script: bin/test
-before_script: cd test/dummy && bin/rails db:setup
+before_script: cd test/dummy && bin/rails db:setup && cd ../..
