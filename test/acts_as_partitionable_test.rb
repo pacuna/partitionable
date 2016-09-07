@@ -97,4 +97,13 @@ class ActsAsPartitionableTest < ActiveSupport::TestCase
     ArticleStat.create({logdate: Date.new(2000,1,1)})
     assert_equal true, ActiveRecord::Base.connection.data_source_exists?("article_stats_y2000m01")
   end
+
+  def test_article_stats_get_updated_trigger_statement
+    ArticleStat.create_partition(1, 2000)
+    ArticleStat.create_partition(2, 2000)
+    ArticleStat.create_partition(3, 2000)
+
+    statement = ArticleStat.trigger_statement [[1,2000], [2,2000],[3,2000]]
+    assert_equal statement, ArticleStat.updated_trigger_statement
+  end
 end

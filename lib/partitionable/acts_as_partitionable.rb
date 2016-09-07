@@ -3,7 +3,7 @@ module Partitionable
     extend ActiveSupport::Concern
 
     included do
-      before_save :create_partition
+      before_save :create_partition_from_record
     end
 
     module ClassMethods
@@ -78,7 +78,7 @@ module Partitionable
 
           months_and_years.each_with_index do |data, index|
 
-            first_day_of_month = Date.civil(data[1], data[0], 1)
+            first_day_of_month = Date.civil(data[1].to_i, data[0].to_i, 1)
             first_day_next_month = (first_day_of_month + 1.month)
             if index == 0
               statement += <<-eos
@@ -105,6 +105,16 @@ module Partitionable
           ActiveRecord::Base.connection.data_source_exists? partition_name(month, year)
         end
 
+        def update_trigger
+          ActiveRecord::Base.connection.execute updated_trigger_statement
+        end
+
+        def updated_trigger_statement
+          tables = ActiveRecord::Base.connection.tables.select{|t| t =~ /#{self.table_name}_y[0-9]{4}m[0-9]{2}/}
+          months_and_years = tables.map {|t| [t.match(/m\K[0-9]{2}/)[0], t.match(/y\K[0-9]{4}/)[0]]}
+          trigger_statement months_and_years
+        end
+
         include Partitionable::ActsAsPartitionable::LocalInstanceMethods
       end
     end
@@ -116,10 +126,13 @@ module Partitionable
         self.class.partition_exists? month,year
       end
 
-      def create_partition
+      def create_partition_from_record
+        return if has_partition?
+
         month = self.logdate.month
         year = self.logdate.year
-u       self.class.create_partition(month,year) unless has_partition?
+        self.class.create_partition(month,year)
+        self.class.update_trigger
       end
     end
   end
