@@ -69,7 +69,7 @@ ActiveRecord::Base.connection.execute(statement)
 ```
 For creating the partitions and then add the triggers.
 
-#### partition_table_exists?(month, year)
+#### partition_exists?(month, year)
 
 Returns true if the partition for that month and year exists.
 

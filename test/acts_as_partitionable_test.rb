@@ -61,9 +61,9 @@ class ActsAsPartitionableTest < ActiveSupport::TestCase
     assert_equal statement, ArticleStat.get_trigger_body(months_and_years)
   end
 
-  def test_article_stats_partition_table_exists?
+  def test_article_stats_partition_exists?
     ArticleStat.create_partition(1,2011)
-    assert_equal true, ArticleStat.partition_table_exists?(1,2011)
+    assert_equal true, ArticleStat.partition_exists?(1,2011)
   end
 
   def test_article_stats_drop_partition_table

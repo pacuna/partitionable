@@ -97,7 +97,7 @@ module Partitionable
           eos
         end
 
-        def partition_table_exists?(month, year)
+        def partition_exists?(month, year)
           ActiveRecord::Base.connection.data_source_exists? partition_table_name(month, year)
         end
       end
