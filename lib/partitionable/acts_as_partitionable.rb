@@ -3,6 +3,7 @@ module Partitionable
     extend ActiveSupport::Concern
 
     included do
+      before_save :create_partition
     end
 
     module ClassMethods
@@ -113,6 +114,12 @@ module Partitionable
         month = self.logdate.month
         year = self.logdate.year
         self.class.partition_exists? month,year
+      end
+
+      def create_partition
+        month = self.logdate.month
+        year = self.logdate.year
+u       self.class.create_partition(month,year) unless has_partition?
       end
     end
   end

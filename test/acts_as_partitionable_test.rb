@@ -92,4 +92,9 @@ class ActsAsPartitionableTest < ActiveSupport::TestCase
     article_stat = ArticleStat.new({logdate: Date.new(2000,1,1)})
     assert_equal true, article_stat.has_partition?
   end
+
+  def test_article_stats_callback_for_create_partition
+    ArticleStat.create({logdate: Date.new(2000,1,1)})
+    assert_equal true, ActiveRecord::Base.connection.data_source_exists?("article_stats_y2000m01")
+  end
 end
