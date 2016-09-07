@@ -24,12 +24,12 @@ module Partitionable
           index_name = "#{table}_#{index_fields.join('_')}"
           first_day_of_month = Date.civil(year, month, 1)
           first_day_next_month = (first_day_of_month + 1.month)
-            <<-SQL
+          <<-SQL
           CREATE TABLE #{table} (
               CHECK ( logdate >= DATE '#{first_day_of_month.to_s}' AND logdate < DATE '#{first_day_next_month.to_s}' )
           ) INHERITS (#{self.table_name});
           CREATE INDEX #{index_name} ON #{table} (#{index_fields.join(',')});
-            SQL
+          SQL
         end
 
         def drop_partition(month, year)
@@ -103,6 +103,16 @@ module Partitionable
         def partition_exists?(month, year)
           ActiveRecord::Base.connection.data_source_exists? partition_name(month, year)
         end
+
+        include Partitionable::ActsAsPartitionable::LocalInstanceMethods
+      end
+    end
+
+    module LocalInstanceMethods
+      def has_partition?
+        month = self.logdate.month
+        year = self.logdate.year
+        self.class.partition_exists? month,year
       end
     end
   end

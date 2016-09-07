@@ -81,4 +81,15 @@ class ActsAsPartitionableTest < ActiveSupport::TestCase
             SQL
     assert_equal statement, ArticleStat.create_table_statement(2,2014)
   end
+
+  def test_artitle_stats_partition_exists_for_self_is_false
+    article_stat = ArticleStat.new({logdate: Date.new(2000,1,1)})
+    assert_equal false, article_stat.has_partition?
+  end
+
+  def test_artitle_stats_partition_exists_for_self_is_true
+    ArticleStat.create_partition(1, 2000)
+    article_stat = ArticleStat.new({logdate: Date.new(2000,1,1)})
+    assert_equal true, article_stat.has_partition?
+  end
 end
