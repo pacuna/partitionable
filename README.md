@@ -22,7 +22,7 @@ class ApplicationRecord < ActiveRecord::Base
 end
 ```
 
-And the add the `acts_as_partitionable` method to the model. The index fields is a mandatory
+And then add the `acts_as_partitionable` method to the model. The index fields is a mandatory
 options. It'll add an index for those attributes when creating the partitions:
 
 ```ruby
