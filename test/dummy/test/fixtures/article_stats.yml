@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  token: MyString
+  logdate: 2016-09-06
+  site: MyString
+  pageviews: 1
+  sessions: 1
+
+two:
+  token: MyString
+  logdate: 2016-09-06
+  site: MyString
+  pageviews: 1
+  sessions: 1
