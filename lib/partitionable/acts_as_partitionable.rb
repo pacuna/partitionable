@@ -28,6 +28,59 @@ module Partitionable
             SQL
           )
         end
+
+        def trigger_statement months_and_years
+          trigger_body = get_trigger_body(months_and_years)
+          statement = ""
+          statement += <<-SQL
+          CREATE OR REPLACE FUNCTION #{self.table_name}_insert_trigger()
+          RETURNS TRIGGER AS $$
+          SQL
+
+          statement += trigger_body
+          statement += <<-SQL
+          $$
+          LANGUAGE plpgsql;
+
+          DROP TRIGGER IF EXISTS insert_#{self.table_name}_trigger ON #{self.table_name};
+          CREATE TRIGGER insert_#{self.table_name}_trigger
+              BEFORE INSERT ON #{self.table_name}
+              FOR EACH ROW EXECUTE PROCEDURE #{self.table_name}_insert_trigger();
+          SQL
+          statement
+        end
+
+        def get_trigger_body months_and_years
+
+          statement = ""
+          statement += <<-eos
+          BEGIN
+          eos
+
+          months_and_years.each_with_index do |data, index|
+
+            first_day_of_month = Date.civil(data[1], data[0], 1)
+            first_day_next_month = (first_day_of_month + 1.month)
+            if index == 0
+              statement += <<-eos
+              IF ( NEW.logdate >= DATE '#{first_day_of_month}' AND
+                   NEW.logdate < DATE '#{first_day_next_month}' ) THEN
+                  INSERT INTO #{partition_table_name(data[0], data[1])} VALUES (NEW.*);
+              eos
+            else
+              statement += <<-eos
+              ELSIF ( NEW.logdate >= DATE '#{first_day_of_month}' AND
+                   NEW.logdate < DATE '#{first_day_next_month}' ) THEN
+                  INSERT INTO #{partition_table_name(data[0], data[1])} VALUES (NEW.*);
+              eos
+            end
+          end
+          statement += <<-eos
+              END IF;
+              RETURN NULL;
+          END;
+          eos
+        end
       end
     end
   end
