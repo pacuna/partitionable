@@ -4,3 +4,4 @@ rvm:
 
 script: bin/test
 before_script: cd test/dummy && bin/rails db:setup && cd ../..
+after_script: cd test/dummy && bin/rails db:drop && cd ../..
