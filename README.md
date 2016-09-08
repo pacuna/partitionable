@@ -31,7 +31,7 @@ is the date attribute used for routing the records to the correct partitions:
 
 ```ruby
 class ArticleStat < ApplicationRecord
-  acts_as_partitionable, index_fields: ['id', 'site'], logdate_attr: 'logdate'
+  acts_as_partitionable index_fields: ['id', 'site'], logdate_attr: 'logdate'
 end
 ```
 
