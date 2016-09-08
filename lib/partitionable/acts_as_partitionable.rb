@@ -9,7 +9,9 @@ module Partitionable
     module ClassMethods
       def acts_as_partitionable(options = {})
         cattr_accessor :index_fields
+        cattr_accessor :logdate_attr
         self.index_fields = options[:index_fields]
+        self.logdate_attr = options[:logdate_attr]
 
         def partition_name(month, year)
           formatted_month = sprintf('%02d', month)
@@ -27,7 +29,7 @@ module Partitionable
           first_day_next_month = (first_day_of_month + 1.month)
           <<-SQL
           CREATE TABLE #{table} (
-              CHECK ( logdate >= DATE '#{first_day_of_month.to_s}' AND logdate < DATE '#{first_day_next_month.to_s}' )
+              CHECK ( #{self.logdate_attr} >= DATE '#{first_day_of_month.to_s}' AND #{self.logdate_attr} < DATE '#{first_day_next_month.to_s}' )
           ) INHERITS (#{self.table_name});
           CREATE INDEX #{index_name} ON #{table} (#{index_fields.join(',')});
           SQL
@@ -82,14 +84,14 @@ module Partitionable
             first_day_next_month = (first_day_of_month + 1.month)
             if index == 0
               statement += <<-eos
-              IF ( NEW.logdate >= DATE '#{first_day_of_month}' AND
-                   NEW.logdate < DATE '#{first_day_next_month}' ) THEN
+              IF ( NEW.#{self.logdate_attr} >= DATE '#{first_day_of_month}' AND
+                   NEW.#{self.logdate_attr} < DATE '#{first_day_next_month}' ) THEN
                   INSERT INTO #{partition_name(data[0], data[1])} VALUES (NEW.*);
               eos
             else
               statement += <<-eos
-              ELSIF ( NEW.logdate >= DATE '#{first_day_of_month}' AND
-                   NEW.logdate < DATE '#{first_day_next_month}' ) THEN
+              ELSIF ( NEW.#{self.logdate_attr} >= DATE '#{first_day_of_month}' AND
+                   NEW.#{self.logdate_attr} < DATE '#{first_day_next_month}' ) THEN
                   INSERT INTO #{partition_name(data[0], data[1])} VALUES (NEW.*);
               eos
             end
@@ -121,16 +123,16 @@ module Partitionable
 
     module LocalInstanceMethods
       def has_partition?
-        month = self.logdate.month
-        year = self.logdate.year
+        month = self.send(self.class.logdate_attr.to_sym).month
+        year = self.send(self.class.logdate_attr.to_sym).year
         self.class.partition_exists? month,year
       end
 
       def create_partition_from_record
         return if has_partition?
 
-        month = self.logdate.month
-        year = self.logdate.year
+        month = self.send(self.class.logdate_attr.to_sym).month
+        year = self.send(self.class.logdate_attr.to_sym).year
         self.class.create_partition(month,year)
         self.class.update_trigger
       end
