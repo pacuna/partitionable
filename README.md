@@ -6,12 +6,14 @@ describe [here](https://www.postgresql.org/docs/9.1/static/ddl-partitioning.html
 
 ## Usage
 
-Partitionable assumes the model you want to partition has a `logdate` attribute which will be
+Partitionable assumes the model you want to partition has a date attribute which will be
 used for checking the partitions constraints and triggers.
 
 ### Example
 
 Let's say you have a model named `ArticleStat` and its respective table named `article_stats`.
+Suppose this model also has a `logdate` attribute of type date. We want to partition
+this data by month and year using this attribute.
 
 First, add the module to `app/models/application_record.rb`:
 
@@ -23,12 +25,13 @@ class ApplicationRecord < ActiveRecord::Base
 end
 ```
 
-And then add the `acts_as_partitionable` method to the model. The index fields is a mandatory
-options. It'll add an index for those attributes when creating the partitions:
+And then add the `acts_as_partitionable` method to the model. The `index_fields` and `logdate_attr` are mandatory
+options. The first one adds an index for those attributes when creating the partitions and the latter
+is the date attribute used for routing the records to the correct partitions:
 
 ```ruby
 class ArticleStat < ApplicationRecord
-  acts_as_partitionable, index_fields: ['id', 'site']
+  acts_as_partitionable, index_fields: ['id', 'site'], logdate_attr: 'logdate'
 end
 ```
 
@@ -48,10 +51,6 @@ And then execute:
 ```bash
 $ bundle
 ```
-
-## TODO
-
-- Custom logdate attribute passed in the options hash
 
 ## Contributing
 Contribution directions go here.
