@@ -13,7 +13,7 @@ used for checking the partitions constraints and triggers.
 
 Let's say you have a model named `ArticleStat` and its respective table named `article_stats`.
 Suppose this model also has a `logdate` attribute of type date. We want to partition
-this data by month and year using this attribute.
+the data by year and month using this attribute.
 
 First, add the module to `app/models/application_record.rb`:
 
