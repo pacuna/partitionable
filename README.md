@@ -52,6 +52,14 @@ And then execute:
 $ bundle
 ```
 
+## Tests
+
+Run:
+
+```bash
+bin/test
+```
+
 ## Contributing
 Contribution directions go here.
 
