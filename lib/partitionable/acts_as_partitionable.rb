@@ -114,7 +114,7 @@ module Partitionable
         def updated_trigger_statement
           tables = ActiveRecord::Base.connection.tables.select{|t| t =~ /#{self.table_name}_y[0-9]{4}m[0-9]{2}/}
           months_and_years = tables.map {|t| [t.match(/m\K[0-9]{2}/)[0], t.match(/y\K[0-9]{4}/)[0]]}
-          trigger_statement months_and_years
+          trigger_statement months_and_years.sort_by{|month, year| [year.to_i, month.to_i]}
         end
 
         include Partitionable::ActsAsPartitionable::LocalInstanceMethods
