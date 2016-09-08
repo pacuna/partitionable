@@ -54,7 +54,14 @@ $ bundle
 
 ## Tests
 
-Run:
+First, create the database for the dummy embedded application:
+
+```bash
+cd test/dummy
+bin/rails db:setup
+cd ../..
+```
+Then you can run the tests with:
 
 ```bash
 bin/test
