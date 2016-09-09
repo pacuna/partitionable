@@ -14,7 +14,7 @@ module Partitionable
         self.logdate_attr = options[:logdate_attr]
 
         def partition_name(month, year)
-          formatted_month = sprintf('%02d', month)
+          formatted_month = sprintf('%02d', month.to_i)
           "#{self.table_name}_y#{year}m#{formatted_month}"
         end
 
