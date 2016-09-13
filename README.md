@@ -16,22 +16,14 @@ Let's say you have a model named `ArticleStat` and its respective table named `a
 Suppose this model also has a `logdate` attribute of type date. We want to partition
 the data by year and month using this attribute.
 
-First, add the module to `app/models/application_record.rb`:
-
-```ruby
-class ApplicationRecord < ActiveRecord::Base
-
-  include Partitionable::ActsAsPartitionable
-  self.abstract_class = true
-end
-```
-
-And then add the `acts_as_partitionable` method to the model. The `index_fields` and `logdate_attr` are mandatory
+Add the `acts_as_partitionable` module and method to the model. The `index_fields` and `logdate_attr` are mandatory
 options. The first one adds an index for those attributes when creating the partitions and the latter
 is the date attribute used for routing the records to the correct partitions:
 
 ```ruby
 class ArticleStat < ApplicationRecord
+  include Partitionable::ActsAsPartitionable
+
   acts_as_partitionable index_fields: ['id', 'site'], logdate_attr: 'logdate'
 end
 ```
