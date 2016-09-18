@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.authors     = ["Pablo Acuña"]
   s.email       = ["pabloacuna88@gmail.com"]
   s.homepage    = "http://www.archdaily.com"
-  s.description = "Seamless PostgreSQL date partitioning for your Rails models."
+  s.summary     = "Seamless PostgreSQL date partitioning for your Rails models."
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
