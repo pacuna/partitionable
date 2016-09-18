@@ -1,3 +1,4 @@
+[![Gem Version](https://badge.fury.io/rb/partitionable.svg)](https://badge.fury.io/rb/partitionable)
 [![Build Status](https://travis-ci.org/pacuna/partitionable.svg?branch=master)](https://travis-ci.org/pacuna/partitionable)
 
 # Partitionable
@@ -37,7 +38,7 @@ routed.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "partitionable", '~> 0.1.0'
+gem "partitionable", '~> 0.2.0'
 ```
 
 And then execute:
