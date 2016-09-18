@@ -37,7 +37,7 @@ routed.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "partitionable", git: "git://github.com/pacuna/partitionable.git"
+gem "partitionable", '~> 0.1.0'
 ```
 
 And then execute:
