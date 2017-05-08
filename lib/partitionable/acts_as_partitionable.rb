@@ -43,7 +43,7 @@ module Partitionable
         def create_index_statements(month, year)
           table = partition_name(month, year)
           indices.map do |index|
-            where = index[:where].nil? ? '' : " where #{index[:where]}"
+            where = index[:where].nil? ? '' : " WHERE #{index[:where]}"
             name = index_name(month, year, index)
             "CREATE INDEX #{name} ON #{table} (#{index[:fields].join(',')})#{where};"
           end.join("\n")
