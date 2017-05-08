@@ -8,9 +8,15 @@ module Partitionable
 
     module ClassMethods
       def acts_as_partitionable(options = {})
-        cattr_accessor :index_fields
         cattr_accessor :logdate_attr
-        self.index_fields = options[:index_fields]
+        cattr_accessor :indices
+        self.indices = [
+          {
+            name: options[:name],
+            fields: options[:index_fields],
+            where: options[:where]
+          }
+        ] + (options[:indices] || [])
         self.logdate_attr = options[:logdate_attr]
 
         def partition_name(month, year)
@@ -24,26 +30,43 @@ module Partitionable
 
         def create_table_statement(month, year)
           table = partition_name(month, year)
-          index_name = "#{table}_#{index_fields.join('_')}"
           first_day_of_month = Date.civil(year, month, 1)
           first_day_next_month = (first_day_of_month + 1.month)
           <<-SQL
           CREATE TABLE #{table} (
               CHECK ( #{self.logdate_attr} >= DATE '#{first_day_of_month.to_s}' AND #{self.logdate_attr} < DATE '#{first_day_next_month.to_s}' )
           ) INHERITS (#{self.table_name});
-          CREATE INDEX #{index_name} ON #{table} (#{index_fields.join(',')});
+          #{create_index_statements(month, year)}
           SQL
+        end
+
+        def create_index_statements(month, year)
+          table = partition_name(month, year)
+          indices.map do |index|
+            where = index[:where].nil? ? '' : " where #{index[:where]}"
+            name = index_name(month, year, index)
+            "CREATE INDEX #{name} ON #{table} (#{index[:fields].join(',')})#{where};"
+          end.join("\n")
+        end
+
+        def index_name(month, year, index)
+          table = partition_name(month, year)
+          if index[:name].nil?
+            "#{table}_#{index[:fields].join('_')}"
+          else
+            "#{table}_#{index[:name]}"
+          end
         end
 
         def drop_partition(month, year)
           name = partition_name(month, year)
-          index_name = "#{name}_#{index_fields.join('_')}"
           function_name = "#{name}_insert_trigger_function()"
           trigger_name = "#{name}_trigger"
+          drop_indices = indices.map { |i| "DROP INDEX IF EXISTS #{index_name(month, year, i)};" }
           ActiveRecord::Base.connection.execute(
             <<-SQL
           DROP TABLE IF EXISTS #{name};
-          DROP INDEX IF EXISTS #{index_name};
+          #{drop_indices.join("\n")}
           DROP FUNCTION IF EXISTS #{function_name} CASCADE;
           DROP TRIGGER IF EXISTS #{trigger_name} ON #{self.table_name} CASCADE;
             SQL
