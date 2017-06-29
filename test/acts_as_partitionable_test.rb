@@ -77,6 +77,8 @@ class ActsAsPartitionableTest < ActiveSupport::TestCase
           CREATE TABLE article_stats_y2014m02 (
               CHECK ( logdate >= DATE '2014-02-01' AND logdate < DATE '2014-03-01' )
           ) INHERITS (article_stats);
+          ALTER TABLE ONLY article_stats_y2014m02
+              ADD CONSTRAINT article_stats_y2014m02_pkey PRIMARY KEY (id);
           CREATE INDEX article_stats_y2014m02_site_token ON article_stats_y2014m02 (site,token);
             SQL
     assert_equal statement, ArticleStat.create_table_statement(2,2014)

@@ -36,6 +36,8 @@ module Partitionable
           CREATE TABLE #{table} (
               CHECK ( #{self.logdate_attr} >= DATE '#{first_day_of_month.to_s}' AND #{self.logdate_attr} < DATE '#{first_day_next_month.to_s}' )
           ) INHERITS (#{self.table_name});
+          ALTER TABLE ONLY #{table}
+              ADD CONSTRAINT #{table}_pkey PRIMARY KEY (#{primary_key});
           #{create_index_statements(month, year)}
           SQL
         end

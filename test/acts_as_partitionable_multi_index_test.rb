@@ -26,6 +26,8 @@ class ActsAsPartitionableMultiIndexTest < ActiveSupport::TestCase
           CREATE TABLE articles_y2014m02 (
               CHECK ( logdate >= DATE '2014-02-01' AND logdate < DATE '2014-03-01' )
           ) INHERITS (articles);
+          ALTER TABLE ONLY articles_y2014m02
+              ADD CONSTRAINT articles_y2014m02_pkey PRIMARY KEY (id);
           CREATE INDEX articles_y2014m02_slug ON articles_y2014m02 (slug);
 CREATE INDEX articles_y2014m02_drafts_by_author ON articles_y2014m02 (author) WHERE published = 'f';
 CREATE INDEX articles_y2014m02_slug_author ON articles_y2014m02 (slug,author) WHERE published = 't';
